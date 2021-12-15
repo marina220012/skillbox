@@ -18,6 +18,17 @@ public class ArraysUtils3 {
         }
         System.out.println("\n");
         System.out.println("Два минимальных числа "+min1Min2(container)[0]+" "+ min1Min2(container)[1]);
+
+        System.out.println("Введите интервал для удаления массива");
+        int begin= enter.nextInt(), end=enter.nextInt();
+        if (begin>=end || begin>=container.length || end>container.length)
+        {
+            System.out.println("Вы ввели неверный формат интервала");
+            return;
+
+        }
+        show(delete(container, begin, end));
+
     }
 
     public static int[] arrayRandom(int size, int maxValueExclusion){
@@ -28,8 +39,9 @@ public class ArraysUtils3 {
         for (int i=0; i<array.length; i++)
         {
             array[i]= rnd.nextInt(diff);
-            System.out.println(array[i]);
+           // System.out.println(array[i]);
         }
+        show(array);
         return array;
     }
 
@@ -86,12 +98,24 @@ public class ArraysUtils3 {
     }
 
     public static int[] delete(int[] arr, int beg, int end){
-        int[] array=new int[arr.length];
-        int i=0
-        while (i<=arr.length-1)
+        int[] array=new int[arr.length-end+beg-1];
+        int i=0, j=0;
+        while (i<arr.length){
+            if(i==beg-1)
+                i=end;
+            array[j]=arr[i];
+            j++;
+            i++;
+        }
 
+        return array;
     }
 
-
-
+    public static void show(int[] arr){
+        for(int i=0; i<arr.length; i++){
+            System.out.print(arr[i]+" ");
+        }
+    }
 }
+
+
