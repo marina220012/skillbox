@@ -7,15 +7,20 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class Main {
-
     private static List<Station> stationsInfoFromFiles = new ArrayList<>();
 
     public static void main(String[] args) {
@@ -33,13 +38,15 @@ public class Main {
                 station.parent().toString().lastIndexOf("\" style")).substring(11)));
 
         try {
-            File file = new File("F:\\JAVA\\Projects\\FilesAndNetwork\\DataCollector\\data\\data");
+            String path = "F:\\JAVA\\Projects\\FilesAndNetwork\\DataCollector\\data\\data";
+            File file = new File(path);
             collectInformationAboutStationsFromFiles(file);
         }catch (Exception e){
             e.printStackTrace();
         }
 
         stationsInfoFromFiles.forEach(System.out::println);
+        makingNewJsonFile();
     }
 
     public static String parseFile(String path){
@@ -78,14 +85,15 @@ public class Main {
 
             }
         }
-        return ;
+
+        checkingSameInformation();
     }
 
     public static void ifFileJson(String path){
         try {
             JSONParser parser = new JSONParser();
             JSONArray jsonData = (JSONArray) parser.parse(parseFile(path));
-            parseInfo(jsonData);
+            parseJsonFile(jsonData);
 
         } catch (ParseException e) {
             e.printStackTrace();
@@ -108,34 +116,114 @@ public class Main {
                     continue;
                 }
 
+                String stationName = fragments[0];
+                String stationDepth = "-";
+                String stationDate = "-";
+
                 if (isDate) {
-                    stationsInfoFromFiles.add(new Station(fragments[0], "0", fragments[1]));
-                } else {
-                    stationsInfoFromFiles.add(new Station(fragments[0], fragments[1], "-"));
+                    stationDate = fragments[1];
+                } else{
+                   stationDepth = fragments[1];
                 }
+
+                addStationToList(stationName, stationDepth, stationDate, isDate);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
-    private static void parseInfo(JSONArray namePlusInfoArray) {
+    private static void parseJsonFile(JSONArray namePlusInfoArray) {
         namePlusInfoArray.forEach(item ->
         {
             JSONObject itemObject = (JSONObject) item;
             String stationName = (String) itemObject.get("name");
-            String depth = "0";
+            String depth = "-";
             String date = "-";
-            if(itemObject.get("depth")== null){
+            boolean finalIsDate = false;
+
+            if(itemObject.get("date") != null){
                 date = (String) itemObject.get("date");
-            }else {
+                finalIsDate = true;
+            }else if(itemObject.get("depth") != null) {
                 depth = itemObject.get("depth").toString();
             }
 
-            Station station = new Station(stationName, depth, date);
-            stationsInfoFromFiles.add(station);
+            addStationToList(stationName, depth, date, finalIsDate);
         });
 
+    }
+
+    public static void addStationToList(String stationName, String stationDepth, String stationDate, boolean finalIsDate){
+        if (stationName == null){
+            return;
+        }
+
+        boolean isStationIsExist = false;
+        if (!stationsInfoFromFiles.isEmpty())
+        {
+
+        /*for (Station station : stationsInfoFromFiles) {
+            if (station.getName().equals(stationName)) {
+                isStationIsExist = true;
+            }
+
+        }*/
+        isStationIsExist = stationsInfoFromFiles.stream().anyMatch(station ->
+                Objects.equals(station.getName(), stationName));
+        stationsInfoFromFiles.forEach(station -> {
+            if(station.getName().equals(stationName) && finalIsDate){
+
+                if( Objects.equals(station.getDate(), "-")){
+                    station.setDate("");
+                } else if( station.getDate() != null){
+                    station.setDate(station.getDate() +" / ");
+                }
+                station.setDate(station.getDate() + stationDate);
+
+            } else if (station.getName().equals(stationName) && !finalIsDate) {
+                if(Objects.equals(station.getDepth(), "-")){
+                    station.setDepth("");
+                }else if( station.getDepth() != null){
+                    station.setDepth(station.getDepth() +", ");
+                }
+                station.setDepth(station.getDepth() + stationDepth);
+            }
+        });
+        }
+
+        if (!isStationIsExist){
+            Station station = new Station(stationName, stationDepth, stationDate);
+            stationsInfoFromFiles.add(station);
+        }
+    }
+
+    public static void checkingSameInformation(){
+        stationsInfoFromFiles.forEach(station -> {
+            if(station.getDate().contains("/")){
+
+                String[] dates = station.getDate().split(" / ");
+                station.setDate("");
+
+                List<String> datesList = Arrays.asList(dates);
+                datesList = datesList.stream().distinct().collect(Collectors.toList());
+                datesList.forEach(date->station.setDate(station.getDate().concat(date).concat(" / ")));
+
+                station.setDate(station.getDate().substring( 0 , station.getDate().lastIndexOf(" / ")));
+            }
+
+            if(station.getDepth().contains(",")){
+
+                String[] Depths = station.getDepth().split(", ");
+                station.setDepth("");
+
+                List<String> DepthsList = Arrays.asList(Depths);
+                DepthsList = DepthsList.stream().distinct().collect(Collectors.toList());
+                DepthsList.forEach(Depth->station.setDepth(station.getDepth().concat(Depth).concat(", ")));
+
+                station.setDepth(station.getDepth().substring( 0 , station.getDepth().lastIndexOf(", ")));
+            }
+        });
     }
     public static String getFileExtension(File file) {
         String fileName = file.getName();
@@ -143,5 +231,15 @@ public class Main {
         if(fileName.lastIndexOf(".") != -1 && fileName.lastIndexOf(".") != 0)
             return fileName.substring(fileName.lastIndexOf(".") + 1);
         return "";
+    }
+
+    public static void makingNewJsonFile(){
+        try {
+            PrintWriter writer = new PrintWriter("F:\\JAVA\\Projects\\FilesAndNetwork\\DataCollector\\jsonFiles\\map.json");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 }

@@ -3,6 +3,12 @@ public class Station {
     private String depth;
     private String date;
 
+    public Station(String name) {
+        this.name = name;
+        this.depth = "-";
+        this.date = "- ";
+    }
+
     public Station(String name, String depth, String date) {
         this.name = name;
         this.depth = depth;
@@ -35,6 +41,6 @@ public class Station {
 
     @Override
     public String toString() {
-        return  name + " " + depth + " "+ date;
+        return  name + " ... " + depth + " ... "+ date;
     }
 }
