@@ -44,8 +44,7 @@ public class FilesFunctions {
         Document doc = Jsoup.parse(htmlFile);
         Elements lines = doc.select("span.js-metro-line.t-metrostation-list-header.t-icon-metroln");
         lines.forEach(line -> System.out.println(line.text() + " "
-                + line.attr("data-line") /*line.toString().substring(line.toString().indexOf("data-line=\""),
-                line.toString().lastIndexOf("\"")).substring(11)*/));
+                + line.attr("data-line") ));
 
     }
 
@@ -91,6 +90,8 @@ public class FilesFunctions {
                     collectInformationAboutStationsFromFiles(file);
                     break;
                 }
+                default:
+                    System.out.println("Wrong file format");
 
             }
         }
@@ -227,7 +228,7 @@ public class FilesFunctions {
 
                 List<String> depthsList = Arrays.asList(depths);
                 depthsList = depthsList.stream().distinct().collect(Collectors.toList());
-                depthsList.forEach(Depth->station.setDepth(station.getDepth().concat(Depth).concat(", ")));
+                depthsList.forEach(depth ->station.setDepth(station.getDepth().concat(depth).concat(", ")));
 
                 station.setDepth(station.getDepth().substring( 0 , station.getDepth().lastIndexOf(", ")));
             }
@@ -240,61 +241,110 @@ public class FilesFunctions {
         return "";
     }
 
-    public  void makingNewJsonFile(String htmlFile){
+    public  void makingNewJsonFile(String pathToNewFile){
         try {
-            //--------------------------
             Document doc = Jsoup.parse(this.htmlFile);
             JSONObject object = new JSONObject();
-            JSONObject linesArray = new JSONObject();
+            JSONObject stationsArray = new JSONObject();
 
             Elements lines = doc.select("div.js-metro-stations.t-metrostation-list-table");
 
             lines.forEach(line-> {
                 String numberLine = line.attr("data-line");
-                System.out.println(numberLine);
                 Elements stationsName = line.getElementsByClass("name");
                 JSONArray arrStations = new JSONArray();
+
                 stationsName.forEach(s->
                     arrStations.add(s.text()));
-                    //System.out.println(s);});
-                 // array of station
-                linesArray.put(numberLine, arrStations);
+                stationsArray.put(numberLine, arrStations);
             });
-            object.put("lines", linesArray);
 
-            //---------------------------example
-            /*JSONObject object1 = new JSONObject();
-            JSONArray arr = new JSONArray();*/
-            /*arr.add("dad");
-            arr.add("mom");
-            arr.add("son");
-            JSONArray arr2 = new JSONArray();
-            arr2.add("milk");
-            arr2.add("bread");
-            arr2.add("apple");
-            object1.put("line1", arr);
+            object.put("stations", stationsArray);
 
-            object1.put("line2", arr2);
-            //object.put("lines", object1);*/
-            //---------------------------
-            String path ="F:\\JAVA\\Projects\\FilesAndNetwork\\DataCollector\\jsonFiles\\map.json";
+            JSONArray arrLinesJson = new JSONArray();
+            Elements linesNameAndNumber = doc.select("span.js-metro-line.t-metrostation-list-header.t-icon-metroln");
 
-            Files.write(Paths.get(path), object.toJSONString().getBytes());
+            linesNameAndNumber.forEach(line->{
+                JSONObject lineInfo = new JSONObject();
+                lineInfo.put("number", line.attr("data-line"));
+                lineInfo.put("name", line.text());
+                arrLinesJson.add(lineInfo);
+            });
+
+            object.put("lines", arrLinesJson);
+
+            Files.write(Paths.get(pathToNewFile), object.toJSONString().getBytes());
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void makeStationsFile(String pathToNewFile){
+        Document doc = Jsoup.parse(htmlFile);
+        Elements allStations = doc.select("span.name");
+        JSONObject object = new JSONObject();
+        JSONArray listOfStationsJson = new JSONArray();
+
+        allStations.forEach(station->{
+            JSONObject oneStation = new JSONObject();
+            String lineNumber = station.parent().parent().toString().substring(
+                    station.parent().parent().toString().indexOf("data-line=\""),
+                    station.parent().parent().toString().lastIndexOf("\" style")).substring(11);
+            String stationName = station.text();
+            oneStation.put("name", stationName);
+            oneStation.put("line", lineNumber);
+
+            boolean isAnyAddingInfo = stationsInfoFromFiles.stream().anyMatch(s->s.getName().equals(stationName));
+            if (isAnyAddingInfo){
+                stationsInfoFromFiles.forEach(s->{
+                    if(s.getName().equals(stationName)){
+                        if (!s.getDate().equals("-")){
+                            oneStation.put("date", s.getDate());
+                        }
+
+                        if (!s.getDepth().equals("-")){
+                            oneStation.put("depth", s.getDepth());
+                        }
+                    }
+                });
+            }
+            if(station.nextElementSibling()!=null && station.nextElementSibling().toString().contains("title=\"переход")){
+                oneStation.put("hasConnection", true);
+            }
+
+            listOfStationsJson.add(oneStation);
+        });
+
+        object.put("stations", listOfStationsJson);
+
+        try {
+            Files.write(Paths.get(pathToNewFile), object.toJSONString().getBytes());
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
 
-    public void printStations(){
-        Document doc = Jsoup.parse(htmlFile);
-        Elements lines = doc.select("div.js-metro-stations.t-metrostation-list-table");
+    public void readAndCountStationsNumber(String path){
 
-        lines.forEach(line-> {
-                    String numberLine = line.attr("data-line");
-                    System.out.println(numberLine);
-            Elements stationsName = line.getElementsByClass("name");
-            stationsName.forEach(s-> System.out.println(s.text()));
+        try {
+            JSONParser parser =new JSONParser();
+            JSONObject jsonData = (JSONObject) parser.parse(parseFile(path));
+
+            JSONObject stationsObject = (JSONObject) jsonData.get("stations");
+            parseStations(stationsObject);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void parseStations(JSONObject stationsObject){
+        stationsObject.keySet().forEach(lineNumberObject->{
+            String lineNumber = String.valueOf(lineNumberObject);
+            JSONArray stationArray  = (JSONArray) stationsObject.get(lineNumberObject);
+            System.out.println("Line № " + lineNumber + " - " + stationArray.stream().count() + " станций");
         });
     }
+
 }

@@ -6,7 +6,7 @@ public class Station {
     public Station(String name) {
         this.name = name;
         this.depth = "-";
-        this.date = "- ";
+        this.date = "-s";
     }
 
     public Station(String name, String depth, String date) {

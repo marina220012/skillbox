@@ -7,8 +7,8 @@ public class Main {
         FilesFunctions file = new FilesFunctions();
         file.setHtmlFile("F:\\JAVA\\Projects\\FilesAndNetwork\\DataCollector\\code\\code.html");
 
-        //file.findAllLines();
-        //file.findAllStations();
+        file.findAllLines();
+        file.findAllStations();
 
         try {
             String pathToFiles = "F:\\JAVA\\Projects\\FilesAndNetwork\\DataCollector\\data\\data";
@@ -21,7 +21,10 @@ public class Main {
         String mkNewJsonFile = "F:\\JAVA\\Projects\\FilesAndNetwork\\DataCollector\\jsonFiles\\map.json";
         file.makingNewJsonFile(mkNewJsonFile);
 
-        file.printStations();
+        file.makeStationsFile(
+                "F:\\JAVA\\Projects\\FilesAndNetwork\\DataCollector\\jsonFiles\\stations.json");
+
+        file.readAndCountStationsNumber(mkNewJsonFile);
     }
 
 }
