@@ -3,7 +3,7 @@ package searchengine.model;
 import lombok.*;
 
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Getter
 @Setter
@@ -18,8 +18,8 @@ public class Page {
     private Integer id;
 
     @ManyToOne (optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id")
-    @Column(name = "site_id", insertable = false, updatable = false, nullable = false)
+   // @JoinColumn(name = "id")
+    @JoinColumn(name = "site_id", insertable = false, updatable = false, nullable = false)
     private Site site;
 
     @Column(name = "path", insertable = false, updatable = false, nullable = false)

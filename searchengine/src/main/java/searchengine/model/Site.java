@@ -1,12 +1,14 @@
 package searchengine.model;
 
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 import searchengine.model.status.StatusType;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -14,7 +16,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 
 @Entity(name = "site")
-public class Site {
+public class Site implements Serializable {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,7 +30,7 @@ public class Site {
     private StatusType status;
 
     @Column(name = "status_time", insertable = false, updatable = false, nullable = false)
-    private LocalDateTime statusTime;
+    private Date statusTime;
 
     @Column(name = "last_error", columnDefinition = "TEXT", nullable = false)
     private String lastError;
@@ -39,14 +41,28 @@ public class Site {
     @Column(name = "name",columnDefinition = "VARCHAR(100)", nullable = false)
     private String name;
 
-    public Site(Integer id, StatusType status, LocalDateTime statusTime, String lastError, String url, String name) {
-        this.id = id;
+    public Site(String name, String url, StatusType status, Date statusTime, String lastError) {
         this.status = status;
         this.statusTime = statusTime;
         this.lastError = lastError;
         this.url = url;
         this.name = name;
     }
+
+    private ArrayList<Site> children = new ArrayList<>();
+
+    public ArrayList<Site> getChildren(){return children;}
+
+    public void addChildren(ArrayList<Site> newChildren) {
+        for (int i = 0; i < newChildren.size(); i++){
+            children.add(newChildren.get(i));
+        }
+    }
+    public void addChild(Site child){
+        children.add(child);
+    }
+
+
 
 }
 
