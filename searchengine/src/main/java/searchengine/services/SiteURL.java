@@ -7,6 +7,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import searchengine.model.SiteRepository;
 import searchengine.model.status.StatusType;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ public class SiteURL extends RecursiveTask<ArrayList<Site>> {
     public SiteURL(Site site) {
         this.site = site;
     }
+    SiteRepository siteRepository;
 
     @Override
     protected ArrayList<Site> compute() {
@@ -36,6 +38,7 @@ public class SiteURL extends RecursiveTask<ArrayList<Site>> {
                 String link = url.attr("href");
                 if (isValid(link) && !isAlreadyExist(link, sitesList)){
                     site = new Site(siteName, link, StatusType.INDEXING, new Date(), "null");
+                    siteRepository.save(site);//todo to improve
                     SiteURL task = new SiteURL();
                     task.fork();
                     sitesList.add(task);

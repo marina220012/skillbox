@@ -24,7 +24,7 @@ public class PageIndexingService {
 
     public void pageIndexing(){
         HashMap<String, String> sitesConfig = new HashMap<>();
-        if(mainSitesList.getSites().isEmpty()){
+        if(mainSitesList.getSites().isEmpty() || mainSitesList.getSites() == null){
             return;
         }
         mainSitesList.getSites().stream().forEach(site -> sitesConfig.put(site.getUrl(), site.getName()));
