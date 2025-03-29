@@ -7,9 +7,7 @@ import searchengine.config.SitesList;
 import searchengine.model.Site;
 import searchengine.model.status.StatusType;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalDateTime;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,9 +20,9 @@ import static org.springframework.boot.web.servlet.server.Session.SessionTrackin
 public class PageIndexingService {
 
     @Autowired
-    SitesList mainSitesList;
+    private SitesList mainSitesList = new SitesList();
 
-    public void pageIndexing(){
+    public boolean pageIndexing(){
          /*HashMap<String, String> sitesConfig = new HashMap<>();
         if( mainSitesList.getSites() == null || mainSitesList.getSites().isEmpty()){
             return;
@@ -40,7 +38,7 @@ public class PageIndexingService {
 
         ArrayList<Site> allSites = new ArrayList<>();
         if( mainSitesList.getSites() == null || mainSitesList.getSites().isEmpty()){
-            return;
+            return false;
         }
         mainSitesList.getSites().stream().forEach(site -> {
             allSites.add(new Site(site.getName(),
@@ -50,6 +48,6 @@ public class PageIndexingService {
                             site.getUrl(), StatusType.INDEXING, new Date(), "null"))));
         });
 
-
+        return true;
     }
 }
