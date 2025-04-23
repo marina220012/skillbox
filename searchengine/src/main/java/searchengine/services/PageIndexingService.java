@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import searchengine.config.SitesList;
 import searchengine.model.Site;
+import searchengine.model.SiteRepository;
 import searchengine.model.status.StatusType;
 
 
@@ -22,6 +23,8 @@ public class PageIndexingService {
 
     @Autowired
     private SitesList mainSitesList = new SitesList();
+
+
 
     public boolean pageIndexing(){
          /*HashMap<String, String> sitesConfig = new HashMap<>();

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import searchengine.dto.statistics.StatisticsResponse;
 import searchengine.model.Site;
+import searchengine.model.SiteRepository;
 import searchengine.model.status.StatusType;
 import searchengine.services.PageIndexingService;
 import searchengine.services.StatisticsService;
@@ -23,10 +24,13 @@ public class ApiController {
 
     private final StatisticsService statisticsService;
     private final PageIndexingService pageIndexingService;
+    private SiteRepository siteRepository ;
 
-    public ApiController(StatisticsService statisticsService, PageIndexingService pageIndexingService) {
+    public ApiController(StatisticsService statisticsService, PageIndexingService pageIndexingService, SiteRepository siteRepository) {
         this.statisticsService = statisticsService;
         this.pageIndexingService = pageIndexingService;
+        this.siteRepository = siteRepository;
+
     }
 
     @GetMapping("/statistics")
@@ -36,7 +40,9 @@ public class ApiController {
 
     @GetMapping("/startIndexing")
     public ResponseEntity<?> startIndexing(){
-        new Site("SiteName", "www.siteURL.", StatusType.INDEXED, new Date(), "0");
+
+        siteRepository.save(new Site("SiteName", "www.siteURL.", StatusType.INDEXED, new Date(), "0"));
+
         return new ResponseEntity<>(HttpStatus.OK);
 //        if(pageIndexingService.pageIndexing()){
 //            return new ResponseEntity<>( HttpStatus.OK);
