@@ -16,6 +16,7 @@ import java.util.concurrent.ForkJoinPool;
 import static org.springframework.boot.web.servlet.server.Session.SessionTrackingMode.URL;
 
 @Service
+
 @RequiredArgsConstructor
 public class PageIndexingService {
 
