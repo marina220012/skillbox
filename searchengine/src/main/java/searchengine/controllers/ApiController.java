@@ -1,6 +1,7 @@
 package searchengine.controllers;
 
 import org.apache.tomcat.util.http.fileupload.RequestContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,13 +24,14 @@ import java.util.HashMap;
 public class ApiController {
 
     private final StatisticsService statisticsService;
+    @Autowired
     private final PageIndexingService pageIndexingService;
-    private SiteRepository siteRepository ;
 
-    public ApiController(StatisticsService statisticsService, PageIndexingService pageIndexingService, SiteRepository siteRepository) {
+
+    public ApiController(StatisticsService statisticsService, PageIndexingService pageIndexingService/*, SiteRepository siteRepository*/) {
         this.statisticsService = statisticsService;
         this.pageIndexingService = pageIndexingService;
-        this.siteRepository = siteRepository;
+
 
     }
 
@@ -41,21 +43,15 @@ public class ApiController {
     @GetMapping("/startIndexing")
     public ResponseEntity<?> startIndexing(){
 
-        siteRepository.save(new Site("SiteName", "www.siteURL.", StatusType.INDEXED, new Date(), "0"));
+        //siteRepository.save(new Site("SiteName", "www.siteURL.", StatusType.INDEXED, new Date(), "0"));
+        //return new ResponseEntity<>(HttpStatus.OK);
+        if(pageIndexingService.pageIndexing()){
+            return new ResponseEntity<>( HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new AppError(HttpStatus.NOT_FOUND.value(),
+                "Error"),
+                HttpStatus.NOT_FOUND);
 
-        return new ResponseEntity<>(HttpStatus.OK);
-//        if(pageIndexingService.pageIndexing()){
-//            return new ResponseEntity<>( HttpStatus.OK);
-//        }
-//        return new ResponseEntity<>(new AppError(HttpStatus.NOT_FOUND.value(),
-//                "Error"),
-//                HttpStatus.NOT_FOUND);
-
-        //new PageIndexingService().pageIndexing();
-//        HashMap<String, Boolean> response = new HashMap<>();
-//        String startSession = RequestContextHolder.currentRequestAttributes().getSessionId();
-//        Site site = new Site();
-//        site.setName(name);
 
     }
 }

@@ -19,16 +19,16 @@ public class Page {
 
     @ManyToOne (optional = false, cascade = CascadeType.ALL)
    // @JoinColumn(name = "id")
-    @JoinColumn(name = "site_id", insertable = false, updatable = false, nullable = false)
+    @JoinColumn(name = "site_id", updatable = false, nullable = false)
     private Site site;
 
-    @Column(name = "path", insertable = false, updatable = false, nullable = false)
+    @Column(name = "path",  updatable = false, nullable = false)
     private String path;
 
-    @Column(name = "code", insertable = false, updatable = false, nullable = false)
+    @Column(name = "code",  updatable = false, nullable = false)
     private Integer code;
 
-    @Column(name = "content", insertable = false, updatable = false, nullable = false)
+    @Column(name = "content", updatable = false, nullable = false)
     private StringBuilder content;
 
     public Page(Integer id, Site site, String path, Integer code, StringBuilder content) {

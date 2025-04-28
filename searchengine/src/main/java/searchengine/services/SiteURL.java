@@ -1,6 +1,7 @@
 package searchengine.services;
 
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import searchengine.model.Site;
 
 import org.jsoup.Jsoup;
@@ -20,10 +21,16 @@ public class SiteURL extends RecursiveTask<ArrayList<Site>> {
 
     private Site site;
 
-    public SiteURL(Site site) {
-        this.site = site;
+    public SiteURL(String siteURL) {
+        site = new Site();
+        site.setUrl(siteURL);
     }
-    SiteRepository siteRepository;
+    @Autowired
+    private SiteRepository siteRepository;
+
+    public SiteURL(SiteRepository siteRepository){
+        this.siteRepository = siteRepository;
+    }
 
     @Override
     protected ArrayList<Site> compute() {
@@ -33,15 +40,20 @@ public class SiteURL extends RecursiveTask<ArrayList<Site>> {
             Document doc = Jsoup.connect(site.getUrl()).get(); //подключение к сайту
             String siteName = doc.select("tittle").toString();
             Elements websiteAddresses = doc.select("a");
+            site.setName(siteName);
+            site.setStatus(StatusType.INDEXING);
+            site.setStatusTime(new Date());
+            site.setLastError("-");
+            siteRepository.save(site);
 
             for (Element url : websiteAddresses){
                 String link = url.attr("href");
                 if (isValid(link) && !isAlreadyExist(link, sitesList)){
-                    site = new Site(siteName, link, StatusType.INDEXING, new Date(), "null");
-                    siteRepository.save(site);//todo to improve
-                    SiteURL task = new SiteURL();
-                    task.fork();
-                    sitesList.add(task);
+                    SiteURL newSite = new SiteURL(link);
+                    //siteRepository.save(site);//todo to improve
+                    //SiteURL task = new SiteURL();
+                    newSite.fork();
+                    sitesList.add(newSite);
                     site.addChild(new Site());
                     site.setStatus(StatusType.INDEXED);
 

@@ -11,16 +11,16 @@ import searchengine.model.status.StatusType;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.concurrent.ForkJoinPool;
 
-import static org.springframework.boot.web.servlet.server.Session.SessionTrackingMode.URL;
 
 @Service
 
 @RequiredArgsConstructor
 public class PageIndexingService {
 
+    @Autowired
+    private SiteRepository siteRepository ;
     @Autowired
     private SitesList mainSitesList = new SitesList();
 
@@ -38,6 +38,7 @@ public class PageIndexingService {
             new ForkJoinPool().invoke(new SiteURL(
                     new searchengine.model.Site(name , url, StatusType.INDEXING,new Date(), "null")));
         }*/
+        //siteRepository.deleteAll();
 
 
         ArrayList<Site> allSites = new ArrayList<>();
@@ -47,10 +48,10 @@ public class PageIndexingService {
         mainSitesList.getSites().stream().forEach(site -> {
             allSites.add(new Site(site.getName(),
                     site.getUrl(), StatusType.INDEXING, new Date(), "null"));
-            allSites.addAll(new ForkJoinPool().invoke(new SiteURL(
-                    new Site(site.getName(),
-                            site.getUrl(), StatusType.INDEXING, new Date(), "null"))));
+
         });
+        allSites.stream().forEach(site ->
+                new ForkJoinPool().invoke(new SiteURL(site.getUrl())));
 
         return true;
     }

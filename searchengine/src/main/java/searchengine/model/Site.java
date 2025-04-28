@@ -19,7 +19,7 @@ import java.util.Date;
 public class Site implements Serializable {
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -29,7 +29,7 @@ public class Site implements Serializable {
     @Column(columnDefinition = "ENUM('INDEXING', 'INDEXED', 'FAILED') NOT NULL")
     private StatusType status;
 
-    @Column(name = "status_time", insertable = false, updatable = false, nullable = false)
+    @Column(name = "status_time", updatable = false, nullable = false)
     private Date statusTime;
 
     @Column(name = "last_error", columnDefinition = "TEXT", nullable = false)
@@ -61,6 +61,8 @@ public class Site implements Serializable {
     public void addChild(Site child){
         children.add(child);
     }
+
+
 
 
 
