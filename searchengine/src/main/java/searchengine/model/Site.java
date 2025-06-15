@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 @Getter
-@Setter
 @ToString
 @NoArgsConstructor
 
@@ -35,6 +34,8 @@ public class Site implements Serializable {
     @Column(name = "last_error", columnDefinition = "TEXT", nullable = false)
     private String lastError;
 
+
+
     @Column(name = "url", columnDefinition = "VARCHAR(100)", nullable = false)
     private String url;
 
@@ -49,6 +50,29 @@ public class Site implements Serializable {
         this.name = name;
     }
 
+    public void setPages(ArrayList<Page> pages) {
+        this.pages = pages;
+    }
+
+    public void setStatus(StatusType status) {
+        this.status = status;
+    }
+
+    public void setStatusTime(Date statusTime) {
+        this.statusTime = statusTime;
+    }
+
+    public void setLastError(String lastError) {
+        this.lastError = lastError;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
     private ArrayList<Site> children = new ArrayList<>();
 
     public ArrayList<Site> getChildren(){return children;}

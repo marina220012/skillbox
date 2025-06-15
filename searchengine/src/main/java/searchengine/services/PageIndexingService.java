@@ -1,7 +1,6 @@
 package searchengine.services;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import searchengine.config.SitesList;
 import searchengine.model.Site;
@@ -15,15 +14,12 @@ import java.util.concurrent.ForkJoinPool;
 
 
 @Service
-
 @RequiredArgsConstructor
 public class PageIndexingService {
 
-    @Autowired
-    private SiteRepository siteRepository ;
-    @Autowired
-    private SitesList mainSitesList = new SitesList();
 
+    private final SiteRepository siteRepository ;
+    private final SitesList mainSitesList ;
 
 
     public boolean pageIndexing(){
@@ -40,18 +36,19 @@ public class PageIndexingService {
         }*/
         //siteRepository.deleteAll();
 
-
         ArrayList<Site> allSites = new ArrayList<>();
         if( mainSitesList.getSites() == null || mainSitesList.getSites().isEmpty()){
             return false;
         }
+
+
         mainSitesList.getSites().stream().forEach(site -> {
             allSites.add(new Site(site.getName(),
                     site.getUrl(), StatusType.INDEXING, new Date(), "null"));
 
         });
         allSites.stream().forEach(site ->
-                new ForkJoinPool().invoke(new SiteURL(site.getUrl())));
+                new ForkJoinPool().invoke(new SiteURL(site.getUrl(), siteRepository)));
 
         return true;
     }

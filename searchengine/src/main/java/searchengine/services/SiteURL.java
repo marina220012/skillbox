@@ -1,7 +1,6 @@
 package searchengine.services;
 
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import searchengine.model.Site;
 
 import org.jsoup.Jsoup;
@@ -16,21 +15,21 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.RecursiveTask;
 
-@NoArgsConstructor
+//@NoArgsConstructor
+//@RequiredArgsConstructor
 public class SiteURL extends RecursiveTask<ArrayList<Site>> {
 
     private Site site;
 
-    public SiteURL(String siteURL) {
+    public SiteURL(String siteURL, SiteRepository siteRepository) {
+        this.siteRepository = siteRepository;
         site = new Site();
         site.setUrl(siteURL);
     }
-    @Autowired
-    private SiteRepository siteRepository;
 
-    public SiteURL(SiteRepository siteRepository){
-        this.siteRepository = siteRepository;
-    }
+    private final SiteRepository siteRepository;
+
+
 
     @Override
     protected ArrayList<Site> compute() {
@@ -49,7 +48,7 @@ public class SiteURL extends RecursiveTask<ArrayList<Site>> {
             for (Element url : websiteAddresses){
                 String link = url.attr("href");
                 if (isValid(link) && !isAlreadyExist(link, sitesList)){
-                    SiteURL newSite = new SiteURL(link);
+                    SiteURL newSite = new SiteURL(link, siteRepository);
                     //siteRepository.save(site);//todo to improve
                     //SiteURL task = new SiteURL();
                     newSite.fork();
