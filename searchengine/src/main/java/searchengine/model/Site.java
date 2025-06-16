@@ -35,7 +35,6 @@ public class Site implements Serializable {
     private String lastError;
 
 
-
     @Column(name = "url", columnDefinition = "VARCHAR(100)", nullable = false)
     private String url;
 

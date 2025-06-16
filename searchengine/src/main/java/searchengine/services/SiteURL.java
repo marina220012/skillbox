@@ -13,11 +13,12 @@ import searchengine.model.status.StatusType;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.RecursiveTask;
 
 //@NoArgsConstructor
 //@RequiredArgsConstructor
-public class SiteURL extends RecursiveTask<ArrayList<Site>> {
+public class SiteURL extends RecursiveAction {
 
     private Site site;
 
@@ -30,9 +31,8 @@ public class SiteURL extends RecursiveTask<ArrayList<Site>> {
     private final SiteRepository siteRepository;
 
 
-
     @Override
-    protected ArrayList<Site> compute() {
+    protected void compute() {//todo: надо ли возвращать что-то?
         try {
             Thread.sleep(150);
             ArrayList<SiteURL> sitesList = new ArrayList<>();
@@ -53,20 +53,20 @@ public class SiteURL extends RecursiveTask<ArrayList<Site>> {
                     //SiteURL task = new SiteURL();
                     newSite.fork();
                     sitesList.add(newSite);
-                    site.addChild(new Site());
-                    site.setStatus(StatusType.INDEXED);
+                    //site.addChild(new Site());
+                    //site.setStatus(StatusType.INDEXED);
 
                 }
             }
 
             for (SiteURL task : sitesList){
-                site.addChildren(task.join());
+                task.join();
             }
 
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return site.getChildren();
+
     }
     private boolean isValid(String link) {
         return link.contains(site.getUrl()) && !link.contains(".pdf") && !link.equals(site.getUrl());
