@@ -1,5 +1,6 @@
 package searchengine.model;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.*;
 
 
@@ -19,21 +20,21 @@ public class Page {
 
     @ManyToOne (optional = false, cascade = CascadeType.ALL)
    // @JoinColumn(name = "id")
-    @JoinColumn(name = "site_id", updatable = false, nullable = false)
-    private Site site;
+    @JoinColumn(name = "site_id", nullable = false)
+    private Site siteId;
 
-    @Column(name = "path",  updatable = false, nullable = false)
+    @Column(name = "path", nullable = false)
     private String path;
 
-    @Column(name = "code",  updatable = false, nullable = false)
+    @Column(name = "code",  nullable = false)
     private Integer code;
 
-    @Column(name = "content", updatable = false, nullable = false)
+    @Column(name = "content", nullable = false)
     private StringBuilder content;
 
-    public Page(Integer id, Site site, String path, Integer code, StringBuilder content) {
+    public Page(Integer id, Site siteId, String path, Integer code, StringBuilder content) {
         this.id = id;
-        this.site = site;
+        this.siteId = siteId;
         this.path = path;
         this.code = code;
         this.content = content;

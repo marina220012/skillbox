@@ -17,11 +17,11 @@ import java.util.Date;
 @Entity(name = "site")
 public class Site implements Serializable {
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
 
-    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "siteId", cascade = CascadeType.ALL, orphanRemoval = true)
     private ArrayList<Page> pages;
 
     @Enumerated(EnumType.STRING)
